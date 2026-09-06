@@ -21,13 +21,14 @@ void apply_invert(Image *img) {
 
 void apply_brightness(Image *img, int val) {
     if (!img) return;
-    int total_bytes = img->w * img->h * img->channels;
-    for (int i = 0; i < total_bytes; i++) {
+    int total = img->w * img->h * img->channels;
+    for (int i = 0; i < total; i++) {
         int new_val = img->data[i] + val;
         if (new_val < 0) new_val = 0;
         if (new_val > 255) new_val = 255;
         img->data[i] = (unsigned char)new_val;
     }
+}
 }
 }
 }
@@ -132,6 +133,7 @@ Image *apply_sharpen(Image *img) {
 Image *apply_crop(Image *img, int start_x, int start_y, int crop_w, int crop_h) {
     if (!img || start_x < 0 || start_y < 0 || start_x + crop_w > img->w || start_y + crop_h > img->h) return NULL;
     Image *cropped = create_image(crop_w, crop_h);
+    if (!cropped) return NULL;
     for (int y = 0; y < crop_h; y++) {
         for (int x = 0; x < crop_w; x++) {
             int src_idx = ((start_y + y) * img->w + (start_x + x)) * img->channels;
@@ -139,6 +141,10 @@ Image *apply_crop(Image *img, int start_x, int start_y, int crop_w, int crop_h) 
             for (int c = 0; c < img->channels; c++) {
                 cropped->data[dst_idx + c] = img->data[src_idx + c];
             }
+        }
+    }
+    return cropped;
+}
         }
     }
     return cropped;

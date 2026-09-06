@@ -545,14 +545,38 @@ int cb_exit(Ihandle *self) {
 
 int cb_grayscale(Ihandle *s) { apply_grayscale(); return IUP_DEFAULT; }
 int cb_invert(Ihandle *s) { apply_invert(); return IUP_DEFAULT; }
-int cb_bright_inc(Ihandle *s) { apply_brightness(25); return IUP_DEFAULT; }
-int cb_bright_dec(Ihandle *s) { apply_brightness(-25); return IUP_DEFAULT; }
+int cb_bright_inc(Ihandle *s) {
+        int val = 0;
+        if (!IupGetParam("Adjust Brightness", NULL, 0, "Value (-255 to 255): %i[-255,255]
+", &val, NULL)) return IUP_DEFAULT;
+        if (current_img) apply_brightness(current_img, val);
+        refresh_display();
+        return IUP_DEFAULT;
+    }
+int cb_bright_inc(Ihandle *s) {
+        int val = 0;
+        if (!IupGetParam("Adjust Brightness", NULL, 0, "Value (-255 to 255): %i[-255,255]
+", &val, NULL)) return IUP_DEFAULT;
+        if (current_img) apply_brightness(current_img, val);
+        refresh_display();
+        return IUP_DEFAULT;
+    }
 int cb_fliph(Ihandle *s) { apply_flip_h(); return IUP_DEFAULT; }
 int cb_flipv(Ihandle *s) { apply_flip_v(); return IUP_DEFAULT; }
 int cb_rot90(Ihandle *s) { apply_rotate90(); return IUP_DEFAULT; }
 int cb_blur(Ihandle *s) { apply_blur(); return IUP_DEFAULT; }
 int cb_sharp(Ihandle *s) { apply_sharpen(); return IUP_DEFAULT; }
-int cb_crop(Ihandle *s) { apply_crop(); return IUP_DEFAULT; }
+int cb_crop(Ihandle *s) {
+        int x = 0, y = 0, w = current_img ? current_img->w / 2 : 100, h = current_img ? current_img->h / 2 : 100;
+        if (!IupGetParam("Crop Image", NULL, 0, "Start X (px): %i
+Start Y (px): %i
+Width (px): %i
+Height (px): %i
+", &x, &y, &w, &h, NULL)) return IUP_DEFAULT;
+        Image *cropped = apply_crop(current_img, x, y, w, h);
+        if (cropped) { current_img = cropped; refresh_display(); }
+        return IUP_DEFAULT;
+    }
 int cb_undo(Ihandle *s) { apply_undo(); return IUP_DEFAULT; }
 
 int main(int argc, char **argv) {

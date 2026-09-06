@@ -117,18 +117,25 @@ static int cb_save(Ihandle *self) {
 static int cb_grayscale(Ihandle *s) { if (!check_image_loaded()) return IUP_DEFAULT; save_undo(); apply_grayscale(current_img); refresh_display(); return IUP_DEFAULT; }
 static int cb_invert(Ihandle *s) { if (!check_image_loaded()) return IUP_DEFAULT; save_undo(); apply_invert(current_img); refresh_display(); return IUP_DEFAULT; }
 static int cb_binc(Ihandle *s) {
-    if (!check_image_loaded()) return IUP_DEFAULT;
-    int val = 0;
-    if (!IupGetParam("Adjust Brightness", NULL, 0,
-                     "Value (-255 to 255): %i[-255,255]
-",
-                     &val, NULL)) return IUP_DEFAULT;
-    save_undo();
-    apply_brightness(current_img, val);
-    refresh_display();
-    return IUP_DEFAULT;
-}
-static int cb_bdec(Ihandle *s) { if (!check_image_loaded()) return IUP_DEFAULT; save_undo(); apply_brightness(current_img, -25); refresh_display(); return IUP_DEFAULT; }
+        if (!check_image_loaded()) return IUP_DEFAULT;
+        int val = 0;
+        if (!IupGetParam("Adjust Brightness", NULL, 0, "Value (-255 to 255): %i[-255,255]
+", &val, NULL)) return IUP_DEFAULT;
+        save_undo();
+        apply_brightness(current_img, val);
+        refresh_display();
+        return IUP_DEFAULT;
+    }
+static int cb_binc(Ihandle *s) {
+        if (!check_image_loaded()) return IUP_DEFAULT;
+        int val = 0;
+        if (!IupGetParam("Adjust Brightness", NULL, 0, "Value (-255 to 255): %i[-255,255]
+", &val, NULL)) return IUP_DEFAULT;
+        save_undo();
+        apply_brightness(current_img, val);
+        refresh_display();
+        return IUP_DEFAULT;
+    }
 static int cb_fliph(Ihandle *s) { if (!check_image_loaded()) return IUP_DEFAULT; save_undo(); apply_flip_h(current_img); refresh_display(); return IUP_DEFAULT; }
 static int cb_flipv(Ihandle *s) { if (!check_image_loaded()) return IUP_DEFAULT; save_undo(); apply_flip_v(current_img); refresh_display(); return IUP_DEFAULT; }
 
@@ -157,20 +164,17 @@ static int cb_sharp(Ihandle *s) {
 }
 
 static int cb_crop(Ihandle *s) {
-    if (!check_image_loaded()) return IUP_DEFAULT;
-    int x = 0, y = 0, w = current_img->w / 2, h = current_img->h / 2;
-    if (!IupGetParam("Crop Image", NULL, 0,
-                     "Start X (px): %i
+        if (!check_image_loaded()) return IUP_DEFAULT;
+        int x = 0, y = 0, w = current_img->w / 2, h = current_img->h / 2;
+        if (!IupGetParam("Crop Image", NULL, 0, "Start X (px): %i
 Start Y (px): %i
 Width (px): %i
 Height (px): %i
-",
-                     &x, &y, &w, &h, NULL)) return IUP_DEFAULT;
-    save_undo();
-    Image *cropped = apply_crop(current_img, x, y, w, h);
-    if (cropped) {
-        current_img = cropped;
-        refresh_display();
+", &x, &y, &w, &h, NULL)) return IUP_DEFAULT;
+        save_undo();
+        Image *cropped = apply_crop(current_img, x, y, w, h);
+        if (cropped) { current_img = cropped; refresh_display(); }
+        return IUP_DEFAULT;
     } else {
         show_error("Invalid crop area!");
     }
