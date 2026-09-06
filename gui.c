@@ -116,7 +116,18 @@ static int cb_save(Ihandle *self) {
 
 static int cb_grayscale(Ihandle *s) { if (!check_image_loaded()) return IUP_DEFAULT; save_undo(); apply_grayscale(current_img); refresh_display(); return IUP_DEFAULT; }
 static int cb_invert(Ihandle *s) { if (!check_image_loaded()) return IUP_DEFAULT; save_undo(); apply_invert(current_img); refresh_display(); return IUP_DEFAULT; }
-static int cb_binc(Ihandle *s) { if (!check_image_loaded()) return IUP_DEFAULT; save_undo(); apply_brightness(current_img, 25); refresh_display(); return IUP_DEFAULT; }
+static int cb_binc(Ihandle *s) {
+    if (!check_image_loaded()) return IUP_DEFAULT;
+    int val = 0;
+    if (!IupGetParam("Adjust Brightness", NULL, 0,
+                     "Value (-255 to 255): %i[-255,255]
+",
+                     &val, NULL)) return IUP_DEFAULT;
+    save_undo();
+    apply_brightness(current_img, val);
+    refresh_display();
+    return IUP_DEFAULT;
+}
 static int cb_bdec(Ihandle *s) { if (!check_image_loaded()) return IUP_DEFAULT; save_undo(); apply_brightness(current_img, -25); refresh_display(); return IUP_DEFAULT; }
 static int cb_fliph(Ihandle *s) { if (!check_image_loaded()) return IUP_DEFAULT; save_undo(); apply_flip_h(current_img); refresh_display(); return IUP_DEFAULT; }
 static int cb_flipv(Ihandle *s) { if (!check_image_loaded()) return IUP_DEFAULT; save_undo(); apply_flip_v(current_img); refresh_display(); return IUP_DEFAULT; }
@@ -161,6 +172,10 @@ Height (px): %i
         current_img = cropped;
         refresh_display();
     } else {
+        show_error("Invalid crop area!");
+    }
+    return IUP_DEFAULT;
+} else {
         show_error("Invalid crop dimensions!");
     }
     return IUP_DEFAULT;

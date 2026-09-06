@@ -30,6 +30,7 @@ void apply_brightness(Image *img, int val) {
     }
 }
 }
+}
 
 void apply_flip_h(Image *img) {
     if (!img || !img->data) return;
@@ -138,6 +139,10 @@ Image *apply_crop(Image *img, int start_x, int start_y, int crop_w, int crop_h) 
             for (int c = 0; c < img->channels; c++) {
                 cropped->data[dst_idx + c] = img->data[src_idx + c];
             }
+        }
+    }
+    return cropped;
+}
         }
     }
     return cropped;
