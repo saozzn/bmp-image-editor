@@ -147,8 +147,24 @@ static int cb_sharp(Ihandle *s) {
 
 static int cb_crop(Ihandle *s) {
     if (!check_image_loaded()) return IUP_DEFAULT;
-    Image *cropped = apply_crop(current_img);
-    if (!cropped) { show_error("Image is too small to crop further!"); return IUP_DEFAULT; }
+    int x = 0, y = 0, w = current_img->w / 2, h = current_img->h / 2;
+    if (!IupGetParam("Crop Image", NULL, 0,
+                     "Start X (px): %i
+Start Y (px): %i
+Width (px): %i
+Height (px): %i
+",
+                     &x, &y, &w, &h, NULL)) return IUP_DEFAULT;
+    save_undo();
+    Image *cropped = apply_crop(current_img, x, y, w, h);
+    if (cropped) {
+        current_img = cropped;
+        refresh_display();
+    } else {
+        show_error("Invalid crop dimensions!");
+    }
+    return IUP_DEFAULT;
+}
     save_undo();
     free_image(current_img);
     current_img = cropped;

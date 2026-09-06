@@ -20,13 +20,15 @@ void apply_invert(Image *img) {
 }
 
 void apply_brightness(Image *img, int val) {
-    if (!img || !img->data) return;
-    for (int i = 0; i < img->width * img->height; i++) {
-        Pixel *p = &img->data[i];
-        p->r = clamp(p->r + val);
-        p->g = clamp(p->g + val);
-        p->b = clamp(p->b + val);
+    if (!img) return;
+    int total_bytes = img->w * img->h * img->channels;
+    for (int i = 0; i < total_bytes; i++) {
+        int new_val = img->data[i] + val;
+        if (new_val < 0) new_val = 0;
+        if (new_val > 255) new_val = 255;
+        img->data[i] = (unsigned char)new_val;
     }
+}
 }
 
 void apply_flip_h(Image *img) {
@@ -126,22 +128,20 @@ Image *apply_sharpen(Image *img) {
     return out;
 }
 
-Image *apply_crop(Image *img) {
-    if (!img || !img->data) return NULL;
-    int w = img->width;
-    int h = img->height;
-    if (w <= 20 || h <= 20) return NULL;
-
-    int new_w = w * 4 / 5;
-    int new_h = h * 4 / 5;
-    int start_x = w * 1 / 10;
-    int start_y = h * 1 / 10;
-
-    Image *cropped = create_image(new_w, new_h);
-    for (int y = 0; y < new_h; y++) {
-        for (int x = 0; x < new_w; x++) {
-            cropped->data[y * new_w + x] = img->data[(start_y + y) * w + (start_x + x)];
+Image *apply_crop(Image *img, int start_x, int start_y, int crop_w, int crop_h) {
+    if (!img || start_x < 0 || start_y < 0 || start_x + crop_w > img->w || start_y + crop_h > img->h) return NULL;
+    Image *cropped = create_image(crop_w, crop_h);
+    for (int y = 0; y < crop_h; y++) {
+        for (int x = 0; x < crop_w; x++) {
+            int src_idx = ((start_y + y) * img->w + (start_x + x)) * img->channels;
+            int dst_idx = (y * crop_w + x) * img->channels;
+            for (int c = 0; c < img->channels; c++) {
+                cropped->data[dst_idx + c] = img->data[src_idx + c];
+            }
         }
+    }
+    return cropped;
+}
     }
     return cropped;
 }
