@@ -19,9 +19,9 @@ void apply_invert(Image *img) {
     }
 }
 
-void apply_brightness(Image *img, int val) {
-    if (!img) return;
-    int total = img->w * img->h * img->channels;
+void void apply_brightness(Image *img, int val) {
+    if (!img || !img->data) return;
+    int total = img->w * img->h * (3);
     for (int i = 0; i < total; i++) {
         int new_val = img->data[i] + val;
         if (new_val < 0) new_val = 0;
@@ -130,15 +130,17 @@ Image *apply_sharpen(Image *img) {
     return out;
 }
 
-Image *apply_crop(Image *img, int start_x, int start_y, int crop_w, int crop_h) {
-    if (!img || start_x < 0 || start_y < 0 || start_x + crop_w > img->w || start_y + crop_h > img->h) return NULL;
+Image *Image *apply_crop(Image *img, int start_x, int start_y, int crop_w, int crop_h) {
+    if (!img || !img->data) return NULL;
+    if (start_x < 0 || start_y < 0 || start_x + crop_w > img->w || start_y + crop_h > img->h) return NULL;
     Image *cropped = create_image(crop_w, crop_h);
     if (!cropped) return NULL;
+    int ch = 3;
     for (int y = 0; y < crop_h; y++) {
         for (int x = 0; x < crop_w; x++) {
-            int src_idx = ((start_y + y) * img->w + (start_x + x)) * img->channels;
-            int dst_idx = (y * crop_w + x) * img->channels;
-            for (int c = 0; c < img->channels; c++) {
+            int src_idx = ((start_y + y) * img->w + (start_x + x)) * ch;
+            int dst_idx = (y * crop_w + x) * ch;
+            for (int c = 0; c < ch; c++) {
                 cropped->data[dst_idx + c] = img->data[src_idx + c];
             }
         }
