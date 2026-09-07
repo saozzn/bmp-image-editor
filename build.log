@@ -1,0 +1,7 @@
+gui.c:140:5: error: redefinition of 'open_image_callback'
+  140 | int open_image_callback(Ihandle *self)
+      |     ^
+gui.c:40:5: note: previous definition is here
+   40 | int open_image_callback(Ihandle *self)
+      |     ^
+1 error generated.
